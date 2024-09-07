@@ -62,12 +62,16 @@ pub(crate) fn ffi_to_interface_variable(
     ffi_type_ptr: *const ffi::SpvReflectInterfaceVariable,
 ) -> ReflectInterfaceVariable {
     let ffi_type = unsafe { &*ffi_type_ptr };
-    let ffi_members =
-        unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) };
-    let members: Vec<ReflectInterfaceVariable> = ffi_members
-        .iter()
-        .map(|member| ffi_to_interface_variable(member))
-        .collect();
+
+    let members: Vec<ReflectInterfaceVariable> = if !ffi_type.members.is_null() {
+        unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) }
+            .iter()
+            .map(|member| ffi_to_interface_variable(member))
+            .collect()
+    } else {
+        vec![]
+    };
+
     ReflectInterfaceVariable {
         spirv_id: ffi_type.spirv_id,
         name: super::ffi_to_string(ffi_type.name),
