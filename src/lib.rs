@@ -4,8 +4,6 @@ extern crate num_traits;
 #[macro_use]
 extern crate serde_derive;
 
-use num_traits::cast::FromPrimitive;
-
 pub mod convert;
 pub mod ffi;
 pub mod types;

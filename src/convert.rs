@@ -1,6 +1,5 @@
 use crate::ffi;
 use crate::types::*;
-use num_traits::cast::FromPrimitive;
 
 pub(crate) fn ffi_to_entry_point(ffi_type: &ffi::SpvReflectEntryPoint) -> ReflectEntryPoint {
     ReflectEntryPoint {
@@ -96,12 +95,15 @@ pub(crate) fn ffi_to_interface_variable(
 pub(crate) fn ffi_to_type_description(
     ffi_type: &ffi::SpvReflectTypeDescription,
 ) -> ReflectTypeDescription {
-    let ffi_members =
-        unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) };
-    let members: Vec<ReflectTypeDescription> = ffi_members
-        .iter()
-        .map(|member| ffi_to_type_description(member))
-        .collect();
+    let members: Vec<ReflectTypeDescription> = if !ffi_type.members.is_null() {
+        unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) }
+            .iter()
+            .map(|member| ffi_to_type_description(member))
+            .collect()
+    } else {
+        vec![]
+    };
+
     ReflectTypeDescription {
         id: ffi_type.id,
         op: ReflectOp::from(ffi_type.op),
@@ -466,12 +468,15 @@ pub(crate) fn ffi_to_binding_array_traits(
 pub(crate) fn ffi_to_block_variable(
     ffi_type: &ffi::SpvReflectBlockVariable,
 ) -> ReflectBlockVariable {
-    let ffi_members =
-        unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) };
-    let members: Vec<ReflectBlockVariable> = ffi_members
-        .iter()
-        .map(|member| ffi_to_block_variable(member))
-        .collect();
+    let members: Vec<ReflectBlockVariable> = if !ffi_type.members.is_null() {
+        unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) }
+            .iter()
+            .map(|member| ffi_to_block_variable(member))
+            .collect()
+    } else {
+        vec![]
+    };
+
     ReflectBlockVariable {
         spirv_id: ffi_type.spirv_id,
         name: super::ffi_to_string(ffi_type.name),

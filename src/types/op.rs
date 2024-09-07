@@ -1,5 +1,4 @@
 use crate::ffi;
-use num_traits::cast::FromPrimitive;
 use spirv;
 use std::ops::Deref;
 
